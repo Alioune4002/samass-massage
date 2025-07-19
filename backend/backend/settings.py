@@ -2,13 +2,13 @@ from pathlib import Path
 import os
 import datetime
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings
+
 SECRET_KEY = 'django-insecure-pt(izojve4xr&#_8red)nx-+ca9t7s0f9rjr8uw^zmw90z)f91'
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+DEBUG = False
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -58,7 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Database
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,35 +66,35 @@ DATABASES = {
     }
 }
 
-# Password validation
+
 AUTH_PASSWORD_VALIDATORS = [
-    # ... (inchangé)
+    
 ]
 
-# Internationalization
+
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# REST Framework
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Pour tests, ajuste si besoin
+        'rest_framework.permissions.AllowAny',  
     ],
 }
 
-# Authentication
+
 AUTH_USER_MODEL = 'products.CustomUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -102,14 +102,14 @@ AUTHENTICATION_BACKENDS = (
 )
 SITE_ID = 1
 
-# CORS
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # À désactiver en production
+CORS_ALLOW_ALL_ORIGINS = True 
 
-# Email Configuration
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -118,8 +118,7 @@ EMAIL_HOST_USER = 'samassbysam@gmail.com'
 EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'
 DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
 
-# Pour débogage, tu peux temporairement passer à :
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 LOGGING = {
     'version': 1,
@@ -127,7 +126,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',  # Changé de INFO à DEBUG
+            'level': 'DEBUG',  
         },
     },
     'loggers': {
@@ -139,15 +138,14 @@ LOGGING = {
     },
 }
 
-# JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
 }
 
-# Stripe (peut être ignoré pour l'instant)
+
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'your_test_secret_key')
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'your_test_public_key')
 
-# Google Calendar
+
 GOOGLE_CALENDAR_CREDENTIALS = BASE_DIR / 'credentials.json'
