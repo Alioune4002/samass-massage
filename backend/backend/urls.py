@@ -19,7 +19,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('products.urls')),  # Inclure les URLs du router de products
-    path('api/google-calendar/', include('products.google_calendar_urls')),  # Nouvelle URL pour Google Calendar
-    path('api-token-auth/', obtain_auth_token),  # Vue pour obtenir un token
+    path('api/', include('products.urls')),  
+    path('', include('products.urls')),
+    path('api/google-calendar/', include('products.google_calendar_urls')),  
+    path('api-token-auth/', obtain_auth_token),  
 ]
