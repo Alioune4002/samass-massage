@@ -97,7 +97,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Développement
     "http://127.0.0.1:3000",  # Développement alternatif
     "https://samass-massage-qy2b.vercel.app",  # Ton domaine Vercel
-    "https://mon-domaine.com",  # Ton domaine personnalisé
+    "https://samassbysam.com",  # Ton domaine principal
 ]
 CORS_ALLOW_ALL_ORIGINS = False  # Désactivé pour sécurité
 CORS_ALLOW_METHODS = [
@@ -115,7 +115,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'samassbysam@gmail.com'
-EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'
+EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Remplace par un mot de passe d'application si 2FA activé
 DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
 
 LOGGING = {
