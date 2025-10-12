@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'products',
-    'corsheaders',
+    'corsheaders',  # Vérifie que c'est bien inclus
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # En haut pour prioriser CORS
+    'corsheaders.middleware.CorsMiddleware',  # Toujours en haut
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -94,28 +94,29 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Développement
-    "http://127.0.0.1:3000",  # Développement alternatif
-    "https://samass-massage-qy2b.vercel.app",  # Ton domaine Vercel
-    "https://samassbysam.com",  # Ton domaine principal
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://samass-massage-qy2b.vercel.app",
+    "https://samassbysam.com",  # Assuré d'être correct
 ]
-CORS_ALLOW_ALL_ORIGINS = False  # Désactivé pour sécurité
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
-    'OPTIONS',  # Pour les pré-vols CORS
+    'OPTIONS',
 ]
 CORS_ALLOW_HEADERS = [
     'Content-Type',
     'Authorization',
 ]
+CORS_ALLOW_CREDENTIALS = True  # Ajout pour permettre les cookies si nécessaire
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'samassbysam@gmail.com'
-EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Remplace par un mot de passe d'application si 2FA activé
+EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Remplace par un mot de passe d'application si 2FA
 DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
 
 LOGGING = {
@@ -124,7 +125,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',  
+            'level': 'DEBUG',
         },
     },
     'loggers': {

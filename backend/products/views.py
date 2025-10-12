@@ -50,7 +50,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def contact_form_submit(request):
-    logger.info(f"Requête reçue sur /api/contact/: {request.method} {request.POST}")
+    logger.info(f"Vue /api/contact/ atteinte avec données: {request.method} {request.POST}")
     if request.method == 'POST':
         try:
             name = request.POST.get('name')
@@ -61,11 +61,9 @@ def contact_form_submit(request):
                 logger.warning("Champs manquants dans le formulaire de contact")
                 return Response({'error': 'Tous les champs sont requis'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Sauvegarde en base
             ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
             logger.info(f"Message sauvegardé pour {name} ({email})")
 
-            # Email au masseur
             full_message = f"Nom: {name}\nEmail: {email}\nTéléphone: {phone or 'Non fourni'}\nMessage: {message}\n\nPour répondre, utilisez l'email {email}."
             try:
                 send_mail(
@@ -77,14 +75,13 @@ def contact_form_submit(request):
                 )
                 logger.info("Email envoyé au masseur avec succès")
             except BadHeaderError as bhe:
-                logger.error(f"Erreur BadHeaderError lors de l'envoi au masseur: {str(bhe)}")
+                logger.error(f"Erreur BadHeaderError: {str(bhe)}")
                 return Response({'error': 'Erreur d\'en-tête email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                logger.error(f"Erreur SMTP lors de l'envoi au masseur: {str(e)}")
-                return Response({'error': f'Erreur d\'envoi au masseur: {str(e)}. Vérifiez les logs.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"Erreur SMTP au masseur: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi au masseur: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            # Confirmation au client
-            client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Sammy vous contactera bientôt à {email} pour répondre à votre demande.\n\nMerci pour votre intérêt !\n\nMeilleures salutations,\nL'équipe SAMASS"
+            client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Sammy vous contactera bientôt à {email}.\n\nMerci !\nL'équipe SAMASS"
             try:
                 send_mail(
                     subject='Confirmation d\'envoi - SAMASS',
@@ -93,20 +90,21 @@ def contact_form_submit(request):
                     recipient_list=[email],
                     fail_silently=False,
                 )
-                logger.info("Email de confirmation envoyé au client avec succès")
+                logger.info("Email de confirmation envoyé au client")
             except BadHeaderError as bhe:
-                logger.error(f"Erreur BadHeaderError lors de l'envoi au client: {str(bhe)}")
-                return Response({'error': 'Erreur d\'en-tête pour la confirmation'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"Erreur BadHeaderError client: {str(bhe)}")
+                return Response({'error': 'Erreur d\'en-tête pour confirmation'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                logger.error(f"Erreur SMTP lors de l'envoi au client: {str(e)}")
-                return Response({'error': f'Erreur d\'envoi de confirmation: {str(e)}. Vérifiez les logs.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"Erreur SMTP client: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi confirmation: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response({'message': 'Message envoyé avec succès. Vous recevrez une confirmation par email.'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Message envoyé avec succès. Confirmation envoyée par email.'}, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error(f"Erreur inattendue dans contact_form_submit: {str(e)}")
-            return Response({'error': f'Erreur inattendue: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Erreur inattendue: {str(e)}")
+            return Response({'error': f'Erreur serveur: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({'error': 'Méthode non autorisée'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+# Les autres vues restent inchangées (book_appointment, update_appointment_status, etc.)
 @api_view(['POST'])
 def book_appointment(request):
     if request.method == 'POST':
