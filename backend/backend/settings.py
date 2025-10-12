@@ -2,9 +2,7 @@ from pathlib import Path
 import os
 import datetime
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 SECRET_KEY = 'django-insecure-pt(izojve4xr&#_8red)nx-+ca9t7s0f9rjr8uw^zmw90z)f91'
 DEBUG = False
@@ -28,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # En haut pour prioriser CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,7 +56,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,11 +63,7 @@ DATABASES = {
     }
 }
 
-
-AUTH_PASSWORD_VALIDATORS = [
-    
-]
-
+AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
@@ -78,13 +71,11 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static'] 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -95,7 +86,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-
 AUTH_USER_MODEL = 'products.CustomUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -103,13 +93,22 @@ AUTHENTICATION_BACKENDS = (
 )
 SITE_ID = 1
 
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://localhost:3000",  # Développement
+    "http://127.0.0.1:3000",  # Développement alternatif
+    "https://samass-massage-qy2b.vercel.app",  # Ton domaine Vercel
+    "https://mon-domaine.com",  # Ton domaine personnalisé
 ]
-CORS_ALLOW_ALL_ORIGINS = True 
-
+CORS_ALLOW_ALL_ORIGINS = False  # Désactivé pour sécurité
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'OPTIONS',  # Pour les pré-vols CORS
+]
+CORS_ALLOW_HEADERS = [
+    'Content-Type',
+    'Authorization',
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -118,8 +117,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'samassbysam@gmail.com'
 EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'
 DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
-
-
 
 LOGGING = {
     'version': 1,
@@ -144,9 +141,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
 }
 
-
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'your_test_secret_key')
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'your_test_public_key')
-
 
 GOOGLE_CALENDAR_CREDENTIALS = BASE_DIR / 'credentials.json'
