@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Product, Service, Availability, ContactMessage, Appointment, Tip
 from .serializers import ProductSerializer, ServiceSerializer, AvailabilitySerializer, TipSerializer
-from django.core.mail import send_mail
+from django.core.mail import send_mail, BadHeaderError
 import stripe
 import logging
 from django.conf import settings
@@ -50,7 +50,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def contact_form_submit(request):
-    print(f"Requête reçue: {request.method}, {request.POST}")  # Débogage
+    logger.info(f"Requête reçue sur /api/contact/: {request.method} {request.POST}")
     if request.method == 'POST':
         try:
             name = request.POST.get('name')
@@ -58,31 +58,53 @@ def contact_form_submit(request):
             phone = request.POST.get('phone', '')
             message = request.POST.get('message')
             if not all([name, email, message]):
+                logger.warning("Champs manquants dans le formulaire de contact")
                 return Response({'error': 'Tous les champs sont requis'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Sauvegarde en base
             ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
-            full_message = f"Nom: {name}\nEmail: {email}\nTéléphone: {phone or 'Non fourni'}\nMessage: {message}\n\nPour répondre, contactez {email} directement."
-            send_mail(
-                subject=f'Nouveau message de {name} (Email: {email}, Téléphone: {phone or "N/A"})',
-                message=full_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.EMAIL_HOST_USER],
-                fail_silently=False,
-            )
+            logger.info(f"Message sauvegardé pour {name} ({email})")
+
+            # Email au masseur
+            full_message = f"Nom: {name}\nEmail: {email}\nTéléphone: {phone or 'Non fourni'}\nMessage: {message}\n\nPour répondre, utilisez l'email {email}."
+            try:
+                send_mail(
+                    subject=f'Nouveau message de {name} (Email: {email}, Téléphone: {phone or "N/A"})',
+                    message=full_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.EMAIL_HOST_USER],
+                    fail_silently=False,
+                )
+                logger.info("Email envoyé au masseur avec succès")
+            except BadHeaderError as bhe:
+                logger.error(f"Erreur BadHeaderError lors de l'envoi au masseur: {str(bhe)}")
+                return Response({'error': 'Erreur d\'en-tête email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                logger.error(f"Erreur SMTP lors de l'envoi au masseur: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi au masseur: {str(e)}. Vérifiez les logs.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             # Confirmation au client
-            client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Nous vous contacterons bientôt à {email}. Merci !\n\nMeilleures salutations,\nL'équipe SAMASS"
-            send_mail(
-                subject=f'Confirmation d\'envoi - SAMASS',
-                message=client_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            logger.info("Emails envoyés avec succès")
-            return Response({'message': 'Message envoyé avec succès'}, status=status.HTTP_200_OK)
+            client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Sammy vous contactera bientôt à {email} pour répondre à votre demande.\n\nMerci pour votre intérêt !\n\nMeilleures salutations,\nL'équipe SAMASS"
+            try:
+                send_mail(
+                    subject='Confirmation d\'envoi - SAMASS',
+                    message=client_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                logger.info("Email de confirmation envoyé au client avec succès")
+            except BadHeaderError as bhe:
+                logger.error(f"Erreur BadHeaderError lors de l'envoi au client: {str(bhe)}")
+                return Response({'error': 'Erreur d\'en-tête pour la confirmation'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                logger.error(f"Erreur SMTP lors de l'envoi au client: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi de confirmation: {str(e)}. Vérifiez les logs.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response({'message': 'Message envoyé avec succès. Vous recevrez une confirmation par email.'}, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error(f"Erreur lors de l'envoi: {str(e)}")
-            return Response({'error': f'Erreur lors de l\'envoi du mail: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Erreur inattendue dans contact_form_submit: {str(e)}")
+            return Response({'error': f'Erreur inattendue: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({'error': 'Méthode non autorisée'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
