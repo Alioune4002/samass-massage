@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # En haut
+    'corsheaders.middleware.CorsMiddleware',  # En haut pour prioriser
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -98,9 +98,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "https://samass-massage-qy2b.vercel.app",
     "https://samassbysam.com",
-    "https://samass-massage-git-master-aliounes-projects-6b545933.vercel.app",  # Ajout de l'origine temporaire Vercel
+    "https://samass-massage-git-master-aliounes-projects-6b545933.vercel.app",
 ]
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = False  # Désactivé pour sécurité, mais testons avec True si besoin
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
@@ -117,8 +117,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'samassbysam@gmail.com'
-EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Remplace par un mot de passe d'application si 2FA
+EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Vérifie que c'est un mot de passe d'application si 2FA
 DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
+EMAIL_TIMEOUT = 30  # Ajout d'un timeout pour éviter les blocages
 
 LOGGING = {
     'version': 1,
