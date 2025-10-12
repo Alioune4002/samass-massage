@@ -50,6 +50,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def contact_form_submit(request):
+    print(f"Requête reçue: {request.method}, {request.POST}")  # Débogage
     if request.method == 'POST':
         try:
             name = request.POST.get('name')
@@ -92,7 +93,6 @@ def book_appointment(request):
             if not all([user_name, user_email, service, duration, date, time]):
                 return Response({'error': 'Tous les champs obligatoires sont requis'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Vérifier les disponibilités
             if Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time, is_booked=True).exists():
                 return Response({'error': 'Ce créneau est déjà réservé'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -103,7 +103,6 @@ def book_appointment(request):
             )
             Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time).update(is_booked=True)
 
-            # Emails
             admin_message = f"Nouvelle réservation:\nNom: {user_name}\nEmail: {user_email}\nTéléphone: {user_phone or 'Non fourni'}\nService: {service}\nDurée: {duration} min\nDate: {date}\nHeure: {time}\nPrix: {price} €\nDemande spéciale: {special_request}\n\nPour annuler ou donner des infos, contactez {user_email} ou {user_phone or 'N/A'}."
             send_mail(
                 subject=f'Nouvelle réservation de {user_name}',
@@ -261,7 +260,6 @@ def book_google_calendar_appointment(request):
             if not all([user_name, user_email, service, duration, date, time]):
                 return Response({'error': 'Tous les champs obligatoires sont requis'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Vérifier disponibilité
             if Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time, is_booked=True).exists():
                 return Response({'error': 'Ce créneau est déjà réservé'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -303,7 +301,6 @@ def book_google_calendar_appointment(request):
             )
             Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time).update(is_booked=True)
 
-            # Email au masseur (admin)
             admin_message = f"Nouvelle réservation:\nNom: {user_name}\nEmail: {user_email}\nTéléphone: {user_phone or 'Non fourni'}\nService: {service}\nDurée: {duration} min\nDate: {date}\nHeure: {time}\nPrix: {price} €\nDemande spéciale: {special_request}\nLien Google Calendar: {event_result.get('htmlLink', 'N/A')}"
             send_mail(
                 subject=f'Nouvelle réservation de {user_name}',
@@ -313,7 +310,6 @@ def book_google_calendar_appointment(request):
                 fail_silently=False,
             )
 
-            # Email au client
             user_message = f"Merci {user_name} ! Votre réservation pour {service} ({duration} min) le {date} à {time} est confirmée. Prix: {price} €.\nAdresse : 1 place Guy Ropartz, Quimper, place 31\nMerci de nous appeler ou d'envoyer un message pour confirmer et donner plus de détails (code porte, appartement).\nMerci de prévenir à l'avance en cas d'imprévus.\nLien Google Calendar: {event_result.get('htmlLink', 'N/A')}"
             send_mail(
                 subject=f'Confirmation de réservation - SAMASS',
