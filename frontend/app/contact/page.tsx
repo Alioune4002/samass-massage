@@ -16,7 +16,8 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Formulaire soumis:', { name, email, phone, message }); // Débogage
+    alert('Formulaire soumis ! Vérifiez la console.'); // Débogage visible
+    console.log('Formulaire soumis:', { name, email, phone, message });
     try {
       const formData = new URLSearchParams();
       formData.append('name', name);
@@ -27,7 +28,7 @@ export default function Contact() {
       const res = await axios.post('https://samass-massage.onrender.com/api/contact/', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
-      setResponse(res.data.message);
+      setResponse(`Message envoyé avec succès ! Nous vous contacterons à ${email}.`);
       setName('');
       setEmail('');
       setPhone('');
