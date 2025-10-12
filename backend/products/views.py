@@ -69,7 +69,16 @@ def contact_form_submit(request):
                 recipient_list=[settings.EMAIL_HOST_USER],
                 fail_silently=False,
             )
-            logger.info("Email envoyé avec succès")
+            # Confirmation au client
+            client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Nous vous contacterons bientôt à {email}. Merci !\n\nMeilleures salutations,\nL'équipe SAMASS"
+            send_mail(
+                subject=f'Confirmation d\'envoi - SAMASS',
+                message=client_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            logger.info("Emails envoyés avec succès")
             return Response({'message': 'Message envoyé avec succès'}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Erreur lors de l'envoi: {str(e)}")
