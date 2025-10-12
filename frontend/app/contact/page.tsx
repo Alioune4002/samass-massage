@@ -5,6 +5,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { FaPhoneAlt, FaWhatsapp, FaFacebookF } from 'react-icons/fa';
 
 export default function Contact() {
   const [name, setName] = useState('');
@@ -15,6 +16,7 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Formulaire soumis:', { name, email, phone, message }); // Débogage
     try {
       const formData = new URLSearchParams();
       formData.append('name', name);
@@ -22,7 +24,7 @@ export default function Contact() {
       formData.append('phone', phone);
       formData.append('message', message);
 
-      const res = await axios.post('http://127.0.0.1:8000/api/contact/', formData, {
+      const res = await axios.post('https://samass-massage.onrender.com/api/contact/', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
       setResponse(res.data.message);
@@ -46,7 +48,48 @@ export default function Contact() {
       <Navbar />
       <main className="flex-grow">
         <section className="container mx-auto py-8 px-4 sm:py-12 sm:px-6">
-          <h1 className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-6 sm:mb-8 text-center">Contactez Sammy👇</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-6 sm:mb-8 text-center">
+            Contactez Sammy👇
+          </h1>
+
+          {/* Bloc de contact direct */}
+          <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8 mb-10 max-w-lg mx-auto text-center">
+            <h2 className="text-2xl font-semibold text-emerald-900 mb-3">
+              📞 Joindre directement le masseur
+            </h2>
+            <p className="text-gray-700 mb-4 text-base sm:text-lg">
+              Pour toute question ou prise de rendez-vous rapide :
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+              <a
+                href="tel:+33745558731"
+                className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
+              >
+                <FaPhoneAlt /> +33 7 45 55 87 31
+              </a>
+
+              <a
+                href="https://wa.me/33745558731"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 border border-emerald-600 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-50 transition"
+              >
+                <FaWhatsapp /> WhatsApp
+              </a>
+
+              <a
+                href="https://www.facebook.com/share/1GW8VSe5Jt/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 border border-emerald-600 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-50 transition"
+              >
+                <FaFacebookF /> Facebook
+              </a>
+            </div>
+          </div>
+
+          {/* Formulaire existant */}
           <div className="max-w-xs sm:max-w-md mx-auto">
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
@@ -86,7 +129,10 @@ export default function Contact() {
                 Envoyer
               </button>
             </form>
-            {response && <p className="mt-4 text-center text-gray-700 text-base sm:text-lg">{response}</p>}
+
+            {response && (
+              <p className="mt-4 text-center text-gray-700 text-base sm:text-lg">{response}</p>
+            )}
           </div>
         </section>
       </main>
