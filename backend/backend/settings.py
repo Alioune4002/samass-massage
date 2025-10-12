@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'products',
-    'corsheaders',  # Vérifie que c'est bien inclus
+    'corsheaders',  # Confirmé présent
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Toujours en haut
+    'corsheaders.middleware.CorsMiddleware',  # En haut
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -97,7 +97,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://samass-massage-qy2b.vercel.app",
-    "https://samassbysam.com",  # Assuré d'être correct
+    "https://samassbysam.com",
+    "https://samass-massage-git-master-aliounes-projects-6b545933.vercel.app",  # Ajout de l'origine temporaire Vercel
 ]
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_METHODS = [
@@ -109,7 +110,7 @@ CORS_ALLOW_HEADERS = [
     'Content-Type',
     'Authorization',
 ]
-CORS_ALLOW_CREDENTIALS = True  # Ajout pour permettre les cookies si nécessaire
+CORS_ALLOW_CREDENTIALS = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
