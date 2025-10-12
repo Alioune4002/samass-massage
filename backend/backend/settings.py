@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'products',
-    'corsheaders',  # Confirmé présent
+    'corsheaders',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # En haut pour prioriser
+    'corsheaders.middleware.CorsMiddleware',  # En haut
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -100,7 +100,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://samassbysam.com",
     "https://samass-massage-git-master-aliounes-projects-6b545933.vercel.app",
 ]
-CORS_ALLOW_ALL_ORIGINS = False  # Désactivé pour sécurité, mais testons avec True si besoin
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
@@ -112,14 +112,16 @@ CORS_ALLOW_HEADERS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'samassbysam@gmail.com'
-EMAIL_HOST_PASSWORD = 'whhp rtve vuql ltpk'  # Vérifie que c'est un mot de passe d'application si 2FA
-DEFAULT_FROM_EMAIL = 'samassbysam@gmail.com'
-EMAIL_TIMEOUT = 30  # Ajout d'un timeout pour éviter les blocages
+# Configuration SendGrid (remplace SMTP Gmail)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Temporaire pour déboguer
+# Pour production, utilise SendGrid :
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'apikey'
+# EMAIL_HOST_PASSWORD = 'SG.TON_API_KEY_ICI'
+# DEFAULT_FROM_EMAIL = 'noreply@samassbysam.com'
 
 LOGGING = {
     'version': 1,
