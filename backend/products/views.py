@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Product, Service, Availability, ContactMessage, Appointment, Tip
 from .serializers import ProductSerializer, ServiceSerializer, AvailabilitySerializer, TipSerializer
-from django.core.mail import send_mail
+from django.core.mail import send_mail, BadHeaderError
 import stripe
 import logging
 from django.conf import settings
@@ -76,9 +76,12 @@ def contact_form_submit(request):
                     fail_silently=False,
                 )
                 logger.info("Email envoyé au masseur avec succès")
+            except BadHeaderError as bhe:
+                logger.error(f"Erreur BadHeaderError: {str(bhe)}")
+                return Response({'error': 'Erreur d\'en-tête email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                logger.error(f"Erreur SMTP lors de l'envoi au masseur: {str(e)}")
-                return Response({'error': f'Erreur lors de l\'envoi du mail au masseur: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"Erreur SMTP au masseur: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi au masseur: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Confirmation au client
             client_message = f"Bonjour {name},\n\nVotre message a été envoyé avec succès. Sammy vous contactera bientôt à {email}.\n\nMerci !\nL'équipe SAMASS"
@@ -91,9 +94,12 @@ def contact_form_submit(request):
                     fail_silently=False,
                 )
                 logger.info("Email de confirmation envoyé au client avec succès")
+            except BadHeaderError as bhe:
+                logger.error(f"Erreur BadHeaderError client: {str(bhe)}")
+                return Response({'error': 'Erreur d\'en-tête pour confirmation'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                logger.error(f"Erreur SMTP lors de l'envoi au client: {str(e)}")
-                return Response({'error': f'Erreur lors de l\'envoi de la confirmation au client: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.error(f"Erreur SMTP client: {str(e)}")
+                return Response({'error': f'Erreur d\'envoi de confirmation: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response({'message': 'Message envoyé avec succès. Une confirmation a été envoyée à votre email.'}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -118,7 +124,6 @@ def book_appointment(request):
             if not all([user_name, user_email, service, duration, date, time]):
                 return Response({'error': 'Tous les champs obligatoires sont requis'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Vérifier les disponibilités
             if Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time, is_booked=True).exists():
                 return Response({'error': 'Ce créneau est déjà réservé'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -129,7 +134,6 @@ def book_appointment(request):
             )
             Availability.objects.filter(date=date, start_time__lte=time, end_time__gte=time).update(is_booked=True)
 
-            # Emails
             admin_message = f"Nouvelle réservation:\nNom: {user_name}\nEmail: {user_email}\nTéléphone: {user_phone or 'Non fourni'}\nService: {service}\nDurée: {duration} min\nDate: {date}\nHeure: {time}\nPrix: {price} €\nDemande spéciale: {special_request}\n\nPour annuler ou donner des infos, contactez {user_email} ou {user_phone or 'N/A'}."
             send_mail(
                 subject=f'Nouvelle réservation de {user_name}',
