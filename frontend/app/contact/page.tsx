@@ -13,11 +13,13 @@ export default function Contact() {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [response, setResponse] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Formulaire soumis ! Vérifiez la console.'); // Débogage visible
-    console.log('Formulaire soumis:', { name, email, phone, message });
+    setIsSubmitting(true);
+    setResponse(null);
+    console.log('Formulaire soumis:', { name, email, phone, message }); // Débogage
     try {
       const formData = new URLSearchParams();
       formData.append('name', name);
@@ -28,14 +30,13 @@ export default function Contact() {
       const res = await axios.post('https://samass-massage.onrender.com/api/contact/', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
-      setResponse(`Message envoyé avec succès ! Nous vous contacterons à ${email}.`);
-      setName('');
-      setEmail('');
-      setPhone('');
-      setMessage('');
+      setResponse(res.data.message || 'Message envoyé avec succès. Une confirmation vous sera envoyée par email.');
     } catch (error: any) {
-      setResponse(`Erreur lors de l'envoi: ${error.response?.data?.error || 'Vérifiez la console'}`);
+      const errorMsg = error.response?.data?.error || 'Erreur lors de l\'envoi. Veuillez réessayer ou contacter Sammy directement.';
+      setResponse(errorMsg);
       console.error('Erreur:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -90,7 +91,7 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Formulaire existant */}
+          {/* Formulaire */}
           <div className="max-w-xs sm:max-w-md mx-auto">
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
@@ -125,14 +126,17 @@ export default function Contact() {
               />
               <button
                 type="submit"
-                className="w-full bg-emerald-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-emerald-700 text-base sm:text-lg"
+                disabled={isSubmitting}
+                className="w-full bg-emerald-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-base sm:text-lg"
               >
-                Envoyer
+                {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
               </button>
             </form>
 
             {response && (
-              <p className="mt-4 text-center text-gray-700 text-base sm:text-lg">{response}</p>
+              <p className={`mt-4 text-center ${response.includes('succès') || response.includes('envoyé') ? 'text-green-600' : 'text-red-600'} text-base sm:text-lg font-medium`}>
+                {response}
+              </p>
             )}
           </div>
         </section>
