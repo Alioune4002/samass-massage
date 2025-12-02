@@ -1,0 +1,68 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { adminGetMessages } from "@/lib/adminApi";
+
+export default function AdminMessagesPage() {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await adminGetMessages();
+        setMessages(data);
+      } catch (err) {
+        console.error("Erreur chargement messages :", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  if (loading) {
+    return <p className="text-gray-400 animate-pulse">Chargement…</p>;
+  }
+
+  return (
+    <div className="text-white space-y-6">
+      <h1 className="text-3xl font-bold mb-4">Messages reçus</h1>
+
+      {messages.length === 0 ? (
+        <p className="text-gray-400">Aucun message pour le moment.</p>
+      ) : (
+        <div className="space-y-5">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className="bg-[#1A1A1A] border border-gray-700 p-6 rounded-xl shadow-lg"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold text-emerald-400">
+                  {m.name}
+                </h2>
+                <span className="text-gray-400 text-sm">
+                  {new Date(m.created_at).toLocaleString("fr-FR")}
+                </span>
+              </div>
+
+              <p className="text-gray-300 text-sm mb-1">
+                <span className="text-gray-500">Email :</span> {m.email}
+              </p>
+
+              {m.phone && (
+                <p className="text-gray-300 text-sm mb-3">
+                  <span className="text-gray-500">Téléphone :</span> {m.phone}
+                </p>
+              )}
+
+              <p className="text-gray-200 whitespace-pre-line">{m.message}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

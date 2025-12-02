@@ -1,24 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './app/**/*.{js,ts,jsx,tsx}', // Scan tous les fichiers dans app/
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        emerald: {
-          50: '#f0fff4',
-          100: '#c6f6d5',
-          200: '#9ae6b4',
-          300: '#68d391',
-          400: '#48bb78',
-          500: '#38a169',
-          600: '#2f855a',
-          700: '#276749',
-          800: '#22543d',
-          900: '#1c4532',
-        },
+        mint: "#F3FFF7",
+        forest: "#005F41",
+        ink: "#0D0D0D",
+        softgray: "#6B7280",
       },
+      boxShadow: {
+        card: "0 10px 25px rgba(0,0,0,0.08)",
+      }
     },
   },
   plugins: [],

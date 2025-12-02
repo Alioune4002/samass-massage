@@ -1,0 +1,102 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { adminGetBookings } from "@/lib/adminApi";
+import Link from "next/link";
+
+export default function AdminBookingsPage() {
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [filter, setFilter] = useState<string>("all");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        const data = await adminGetBookings();
+        setBookings(data);
+      } catch (err) {
+        console.error("Erreur chargement réservations:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  const filtered = bookings.filter((b) => {
+    if (filter === "pending") return b.status === "pending";
+    if (filter === "confirmed") return b.status === "confirmed";
+    return true;
+  });
+
+  return (
+    <div className="text-white">
+      <h1 className="text-3xl font-bold mb-6">Réservations</h1>
+
+      {/* FILTERS */}
+      <div className="flex gap-4 mb-6">
+        {[
+          { key: "all", label: "Toutes" },
+          { key: "pending", label: "En attente" },
+          { key: "confirmed", label: "Confirmées" },
+        ].map((btn) => (
+          <button
+            key={btn.key}
+            onClick={() => setFilter(btn.key)}
+            className={`px-4 py-2 rounded-lg transition ${
+              filter === btn.key
+                ? "bg-emerald-600 text-white"
+                : "bg-[#1A1A1A] border border-gray-800 text-gray-300 hover:bg-gray-900"
+            }`}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
+
+      {/* LIST */}
+      {loading ? (
+        <p className="text-gray-400 animate-pulse">Chargement…</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-gray-400">Aucune réservation trouvée.</p>
+      ) : (
+        <div className="space-y-4">
+          {filtered.map((b) => (
+            <Link
+              key={b.id}
+              href={`/admin-samass-98342/bookings/${b.id}`}
+              className="block p-4 bg-[#1A1A1A] border border-gray-800 rounded-lg hover:bg-gray-900 transition"
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-semibold text-white">{b.client_name}</p>
+                  <p className="text-gray-400 text-sm">{b.client_email}</p>
+                  <p className="text-gray-400 text-sm">
+                    {b.service.title} ·{" "}
+                    {new Date(
+                      b.availability.start_datetime
+                    ).toLocaleString("fr-FR")}
+                  </p>
+                </div>
+
+                <span
+                  className={`px-3 py-1 rounded-lg text-sm ${
+                    b.status === "pending"
+                      ? "bg-yellow-600"
+                      : b.status === "confirmed"
+                      ? "bg-emerald-600"
+                      : "bg-red-600"
+                  }`}
+                >
+                  {b.status}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

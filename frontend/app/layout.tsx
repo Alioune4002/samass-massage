@@ -1,22 +1,28 @@
-import './globals.css';
-import type { Metadata } from 'next';
+import "./globals.css";
+import { Inter } from "next/font/google";
 
-export const metadata: Metadata = {
-  title: 'SAMASS - Massage & Relax',
-  description: 'Massages professionnels et huiles par Sammy Ly (SAMASS).',
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+export const metadata = {
+  title: "SAMASS – Massage & Relaxation",
+  description:
+    "Massages bien-être, relaxation et accompagnement personnalisé. Présence, douceur et écoute.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body>{children}</body>
+      <body className={`${inter.variable} bg-white text-ink`}>
+        <Header />
+        <main className="pt-0">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

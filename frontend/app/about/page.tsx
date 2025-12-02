@@ -1,102 +1,202 @@
 'use client';
 
 import Head from 'next/head';
-import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
+import { useState, useEffect } from 'react';
+import Navbar from '../components/Header';
 import Footer from '../components/Footer';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
-export default function About() {
+
+type Value = Date | [Date, Date] | null;
+
+interface Availability {
+  id: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  is_booked: boolean;
+}
+
+export default function Admin() {
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<string>('60');
+
+
+  const [authToken, setAuthToken] = useState<string | null>("b15b4087afe47e52c60ab9d2110473b09b78e5af");
+
+  useEffect(() => {
+    
+    const token = localStorage.getItem('authToken'); 
+    if (token) setAuthToken(token);
+    if (isAdminMode && token) fetchAvailabilities();
+  }, [isAdminMode]);
+
+  const handleAdminLogin = (password: string) => {
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password === 'admin123') {
+      setIsAdminMode(true);
+
+      const dummyToken = 'abc123...'; 
+      setAuthToken(dummyToken);
+      localStorage.setItem('authToken', dummyToken);
+      fetchAvailabilities();
+    } else {
+      alert('Mot de passe incorrect.');
+    }
+  };
+
+  const fetchAvailabilities = async () => {
+    if (!authToken) {
+      console.error('Aucun token d\'authentification trouvé.');
+      return;
+    }
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/availabilities/', {
+        headers: {
+          'Authorization': `Token ${authToken}`, 
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      const availabilitiesData = Array.isArray(data) ? data : data.results || [];
+      setAvailabilities(availabilitiesData);
+    } catch (error) {
+      console.error('Erreur chargement disponibilités:', error);
+      setAvailabilities([]);
+    }
+  };
+
+  const handleAvailabilityAction = async () => {
+    if (!authToken || !selectedDate || !selectedTime || !selectedDuration) {
+      alert('Authentification ou données manquantes.');
+      return;
+    }
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const endTime = new Date(new Date(`${dateStr}T${selectedTime}`).getTime() + parseInt(selectedDuration) * 60000)
+      .toISOString()
+      .split('T')[1]
+      .slice(0, 5);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/google-calendar/add-availability/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${authToken}`, 
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          date: dateStr,
+          start_time: selectedTime,
+          duration: selectedDuration,
+        }).toString(),
+      });
+      if (response.ok) {
+        fetchAvailabilities();
+        alert('Disponibilité ajoutée avec succès.');
+      } else {
+        const errorData = await response.json();
+        alert(`Erreur: ${errorData.detail || 'Unauthorized'}`);
+      }
+    } catch (error) {
+      console.error('Erreur ajout disponibilité:', error);
+      alert('Erreur lors de l\'ajout.');
+    }
+  };
+
+  const handleDateSelect = (value: Value) => {
+    const date = Array.isArray(value) ? value[0] : value;
+    if (date instanceof Date) setSelectedDate(date);
+  };
+
+  const handleTimeSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedTime(e.target.value);
+  };
+
+  if (!isAdminMode) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-emerald-50 text-gray-900 font-poppins">
+        <Head><title>SAMASS - Admin</title></Head>
+        <Navbar />
+        <main className="flex-grow">
+          <section className="container mx-auto py-16 px-4">
+            <div className="max-w-md mx-auto text-center">
+              <h1 className="text-4xl font-bold text-emerald-900 mb-6">Page Admin</h1>
+              <input
+                type="password"
+                placeholder="Mot de passe admin"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="mb-4 p-2 rounded-lg border border-gray-300 w-full"
+              />
+              <button
+                className="w-full bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+                onClick={() => handleAdminLogin(adminPassword)}
+              >
+                Se connecter
+              </button>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-emerald-50 text-gray-900 font-poppins">
-      <Head>
-        <title>SAMASS - À propos</title>
-        <meta name="description" content="En savoir plus sur Sammy Ly et SAMASS." />
-      </Head>
-
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-emerald-50 text-gray-900 font-poppins">
+      <Head><title>SAMASS - Admin</title></Head>
       <Navbar />
       <main className="flex-grow">
-        <motion.section
-          className="container mx-auto py-8 px-4 sm:py-12 sm:px-6"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <motion.h1
-            className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-6 sm:mb-8 text-center"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            À propos de Sammy🌸
-          </motion.h1>
-          <motion.p
-            className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            ✋ Je suis Sammy, masseur diplômé et passionné. Formé à l’École Française du Massage, j’ai choisi ce métier par vocation : j’aime le toucher juste, l’écoute du corps, et la capacité qu’a un bon massage à transformer un état physique et émotionnel. Je suis jeune, à l’écoute, et j’accorde une grande importance à la qualité de la relation que j’instaure avec chaque personne que je reçois. Mon approche est humaine, bienveillante et professionnelle : chaque séance est adaptée à vos besoins, vos limites, votre état du moment. J’ai à cœur de proposer des massages qui ont du sens : qu’ils soient toniques, relaxants ou sensoriels, ils sont toujours réalisés dans le respect, la présence, et avec une vraie attention à votre ressenti.
-          </motion.p>
-          <motion.p
-            className="text-xl sm:text-2xl font-bold text-emerald-600 mb-3 sm:mb-4 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            🌿 Une touche personnelle : mes huiles maison
-          </motion.p>
-          <motion.p
-            className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            Je prépare aussi des huiles que j’utilise pour certains de mes massages. Elles ne sont pas disponibles à la vente, car elles sont conçues uniquement pour mes soins, avec des ingrédients choisis pour leur douceur, leur glisse, et leur parfum subtil. Mon but ? Vous offrir un moment vrai, un temps de pause, un espace pour vous reconnecter à votre corps dans un cadre simple, clair et respectueux.
-          </motion.p>
-          <motion.p
-            className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            À très bientôt,
-          </motion.p>
-          <motion.p
-            className="text-base sm:text-lg text-gray-700 font-semibold text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            Sammy
-          </motion.p>
-
-          <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            <motion.img
-              src="/images/about1.jpg"
-              alt="Sammy Ly en action"
-              className="w-full h-32 sm:h-48 object-cover rounded-lg shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            />
-            <motion.img
-              src="/images/about2.jpg"
-              alt="Huiles naturelles"
-              className="w-full h-32 sm:h-48 object-cover rounded-lg shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0, duration: 0.5 }}
-            />
-            <motion.img
-              src="/images/about3.png"
-              alt="Ambiance relaxante"
-              className="w-full h-32 sm:h-48 object-cover rounded-lg shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-            />
-          </div>
-        </motion.section>
+        <section className="container mx-auto py-16 px-4">
+          <h1 className="text-4xl font-bold text-emerald-900 mb-6 text-center">Gestion des Disponibilités</h1>
+          <Calendar
+            onChange={handleDateSelect as any}
+            value={selectedDate}
+            className="mb-4 mx-auto"
+            tileClassName={({ date }) => {
+              const dateStr = date.toISOString().split('T')[0];
+              const hasAvailability = Array.isArray(availabilities) && availabilities.some((a) => a.date === dateStr);
+              const hasBooked = Array.isArray(availabilities) && availabilities.some((a) => a.date === dateStr && a.is_booked);
+              return hasAvailability ? (hasBooked ? 'bg-red-200' : 'bg-green-200') : '';
+            }}
+          />
+          {selectedDate && (
+            <div className="max-w-md mx-auto space-y-4">
+              <input
+                type="time"
+                value={selectedTime}
+                onChange={handleTimeSelect}
+                className="w-full p-2 border rounded"
+              />
+              <select
+                value={selectedDuration}
+                onChange={(e) => setSelectedDuration(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="30">30 min</option>
+                <option value="60">60 min</option>
+                <option value="90">90 min</option>
+              </select>
+              <button
+                className="w-full bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+                onClick={handleAvailabilityAction}
+                disabled={!selectedTime || !selectedDuration}
+              >
+                Ajouter Disponibilité
+              </button>
+              {Array.isArray(availabilities) && availabilities.map((a) => (
+                <div key={a.id} className="bg-white p-4 rounded-lg shadow-md">
+                  <p><strong>Date :</strong> {new Date(a.date).toLocaleDateString()}</p>
+                  <p><strong>Heure :</strong> {a.start_time} - {a.end_time}</p>
+                  <p><strong>Réservé :</strong> {a.is_booked ? 'Oui' : 'Non'}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
       <Footer />
     </div>

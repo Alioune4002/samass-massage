@@ -1,81 +1,73 @@
-'use client';
+"use client";
 
-import Head from 'next/head';
-import { useState } from 'react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { FaPhoneAlt, FaWhatsapp, FaFacebookF } from 'react-icons/fa';
+import { useState } from "react";
+import Navbar from "../components/Header";
+import Footer from "../components/Footer";
+import { submitContactForm } from "../../lib/api";
+import { FaPhoneAlt, FaWhatsapp, FaFacebookF } from "react-icons/fa";
 
-export default function Contact() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
+export default function ContactPage() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setLoading(true);
     setResponse(null);
-    console.log('Formulaire soumis:', { name, email, phone, message }); // Débogage
-    try {
-      const formData = new URLSearchParams();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('phone', phone);
-      formData.append('message', message);
 
-      const res = await axios.post('https://samass-massage.onrender.com/api/contact/', formData, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      });
-      setResponse(res.data.message || 'Message envoyé avec succès. Une confirmation vous sera envoyée par email.');
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.error || 'Erreur lors de l\'envoi. Veuillez réessayer ou contacter Sammy directement.';
-      setResponse(errorMsg);
-      console.error('Erreur:', error);
-    } finally {
-      setIsSubmitting(false);
+    try {
+      const result = await submitContactForm(form);
+      setResponse("Message envoyé avec succès. Je vous répondrai très vite.");
+      setForm({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      console.error(err);
+      setResponse("Impossible d’envoyer le message pour le moment.");
     }
+
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-emerald-50 text-gray-900 font-poppins">
-      <Head>
-        <title>SAMASS - Contact</title>
-        <meta name="description" content="Contactez SAMASS pour vos questions." />
-      </Head>
-
+    <div className="min-h-screen flex flex-col bg-mint text-ink">
       <Navbar />
+
       <main className="flex-grow">
-        <section className="container mx-auto py-8 px-4 sm:py-12 sm:px-6">
-          <h1 className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-6 sm:mb-8 text-center">
-            Contactez Sammy👇
+        <section className="max-w-3xl mx-auto px-6 py-16">
+
+          <h1 className="text-3xl md:text-4xl font-bold text-forest text-center mb-10">
+            Contactez-moi
           </h1>
 
-          {/* Bloc de contact direct */}
-          <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8 mb-10 max-w-lg mx-auto text-center">
-            <h2 className="text-2xl font-semibold text-emerald-900 mb-3">
-              📞 Joindre directement le masseur
+          
+          <div className="bg-white rounded-2xl shadow-card p-8 mb-12 text-center">
+            <h2 className="text-xl font-semibold text-forest mb-3">
+              Me joindre directement
             </h2>
-            <p className="text-gray-700 mb-4 text-base sm:text-lg">
-              Pour toute question ou prise de rendez-vous rapide :
+
+            <p className="text-softgray mb-6">
+              Pour toute question ou prise de rendez-vous rapide.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
                 href="tel:+33745558731"
-                className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
+                className="px-4 py-3 rounded-xl bg-forest text-white flex items-center gap-2 hover:bg-leaf transition shadow-sm"
               >
-                <FaPhoneAlt /> +33 7 45 55 87 31
+                <FaPhoneAlt /> 07 45 55 87 31
               </a>
 
               <a
                 href="https://wa.me/33745558731"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 border border-emerald-600 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-50 transition"
+                className="px-4 py-3 rounded-xl border border-forest text-forest flex items-center gap-2 hover:bg-mint transition shadow-sm"
               >
                 <FaWhatsapp /> WhatsApp
               </a>
@@ -84,63 +76,89 @@ export default function Contact() {
                 href="https://www.facebook.com/share/1GW8VSe5Jt/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 border border-emerald-600 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-50 transition"
+                className="px-4 py-3 rounded-xl border border-forest text-forest flex items-center gap-2 hover:bg-mint transition shadow-sm"
               >
                 <FaFacebookF /> Facebook
               </a>
             </div>
           </div>
 
-          {/* Formulaire */}
-          <div className="max-w-xs sm:max-w-md mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl shadow-card p-8 space-y-5"
+          >
+            <div>
+              <label className="block text-sm font-medium text-forest mb-1">
+                Nom complet *
+              </label>
               <input
                 type="text"
-                placeholder="Nom"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg text-base sm:text-lg"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full border-softgray border rounded-xl px-4 py-3"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-forest mb-1">
+                Email *
+              </label>
               <input
                 type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg text-base sm:text-lg"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full border-softgray border rounded-xl px-4 py-3"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-forest mb-1">
+                Téléphone (optionnel)
+              </label>
               <input
-                type="tel"
-                placeholder="Téléphone (facultatif)"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg text-base sm:text-lg"
+                type="text"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="w-full border-softgray border rounded-xl px-4 py-3"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-forest mb-1">
+                Votre message *
+              </label>
               <textarea
-                placeholder="Message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg h-24 text-base sm:text-lg"
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="w-full border-softgray border rounded-xl px-4 py-3 h-32"
                 required
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-emerald-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-base sm:text-lg"
-              >
-                {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
-              </button>
-            </form>
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-forest text-white py-3 rounded-xl hover:bg-leaf transition disabled:opacity-50"
+            >
+              {loading ? "Envoi en cours..." : "Envoyer le message"}
+            </button>
 
             {response && (
-              <p className={`mt-4 text-center ${response.includes('succès') || response.includes('envoyé') ? 'text-green-600' : 'text-red-600'} text-base sm:text-lg font-medium`}>
+              <p
+                className={`text-center font-medium mt-4 ${
+                  response.includes("succès") ? "text-leaf" : "text-red-600"
+                }`}
+              >
                 {response}
               </p>
             )}
-          </div>
+          </form>
         </section>
       </main>
+
       <Footer />
     </div>
   );

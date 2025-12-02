@@ -1,18 +1,43 @@
-import Link from 'next/link';
-import { FaWhatsapp, FaFacebookF } from 'react-icons/fa';
+// 
+import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-emerald-800 text-white text-center p-2 sm:p-4 w-full mt-auto">
-      <p className="text-xs sm:text-sm mb-2 sm:mb-4">© 2025 SAMASS - Sammy Ly. Tous droits réservés.</p>
-      <div className="space-x-2 sm:space-x-4 flex justify-center flex-wrap">
-        <a href="https://wa.me/33745558731" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-200 text-sm sm:text-base flex items-center">
-          <FaWhatsapp className="mr-1" /> WhatsApp
-        </a>
-        <a href="https://www.facebook.com/share/1GW8VSe5Jt/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-200 text-sm sm:text-base flex items-center">
-          <FaFacebookF className="mr-1" /> Facebook
-        </a>
-        <Link href="/about" className="hover:text-emerald-200 text-sm sm:text-base">À propos</Link>
+    <footer className="bg-forest text-white mt-20">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-8">
+        
+        
+        <div>
+          <h3 className="text-xl font-semibold mb-4">SAMASS 🌿</h3>
+          <p className="text-softgray text-sm">
+            Massages bien-être à Quimper. Douceur, présence et écoute pour
+            accompagner vos besoins du moment.
+          </p>
+        </div>
+
+       
+        <div>
+          <h4 className="font-semibold mb-4">Navigation</h4>
+          <ul className="space-y-2 text-sm">
+            <li><Link href="/">Accueil</Link></li>
+            <li><Link href="/services">Services</Link></li>
+            <li><Link href="/booking">Réserver</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+          </ul>
+        </div>
+
+        
+        <div>
+          <h4 className="font-semibold mb-4">Coordonnées</h4>
+          <p className="text-sm">Quimper, Finistère</p>
+          <p className="text-sm">Email : samassbysam@gmail.com</p>
+          <p className="text-sm">Téléphone : 07 45 55 87 31</p>
+        </div>
+
+      </div>
+
+      <div className="text-center text-xs text-softgray py-4">
+        © {new Date().getFullYear()} SAMASS — Tous droits réservés.
       </div>
     </footer>
   );
