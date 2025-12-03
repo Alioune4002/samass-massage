@@ -21,7 +21,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/">Accueil</Link></li>
             <li><Link href="/services">Services</Link></li>
-            <li><Link href="/booking">Réserver</Link></li>
+            <li><Link href="/about">À Propos</Link></li>
             <li><Link href="/contact">Contact</Link></li>
           </ul>
         </div>

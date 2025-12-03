@@ -30,7 +30,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8 text-ink">
           <Link href="/" className="hover:text-forest">Accueil</Link>
           <Link href="/services" className="hover:text-forest">Services</Link>
-          <Link href="/booking" className="hover:text-forest">Réserver</Link>
+          <Link href="/about" className="hover:text-forest">À Propos</Link>
           <Link href="/contact" className="hover:text-forest">Contact</Link>
         </nav>
 

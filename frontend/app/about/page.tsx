@@ -55,7 +55,7 @@ export default function Admin() {
       return;
     }
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/availabilities/', {
+      const response = await fetch('https://samassbysam.com/availabilities/', {
         headers: {
           'Authorization': `Token ${authToken}`, 
           'Content-Type': 'application/json',

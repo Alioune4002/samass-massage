@@ -36,7 +36,7 @@ export default function Reservation() {
 
   const fetchAvailabilities = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/availabilities/');
+      const response = await fetch('https://samassbysam.com/availabilities/');
       if (!response.ok) throw new Error('Erreur API');
       const data = await response.json();
       const availabilitiesData = Array.isArray(data) ? data : data.results || [];
@@ -56,7 +56,7 @@ export default function Reservation() {
   const getAvailableTimes = (date: Date) => {
     if (!selectedDuration) return [];
     const dateStr = date.toISOString().split('T')[0];
-    return []; // À implémenter avec l'API Google une fois le backend corrigé
+    return []; 
   };
 
   const bookAppointment = async () => {
@@ -70,7 +70,7 @@ export default function Reservation() {
       const price = selectedDuration ? service?.durations_prices[selectedDuration] || 0.00 : 0.00;
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/google-calendar/book-appointment/', {
+        const res = await fetch('https://samassbysam.com/google-calendar/book-appointment/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
